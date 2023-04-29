@@ -6,6 +6,7 @@ const authRoute = require('./routes/auth')
 const userRoute = require('./routes/users')
 const postRoute = require('./routes/posts')
 const categoryRoute = require('./routes/categories')
+const multer = require('multer')
 
 dotenv.config();
 app.use(express.json());
@@ -15,6 +16,19 @@ mongoose.connect(
     .then(console.log('connected to the MongoDB'))
     .catch((err)=>console.log(err));
 
+const storage = multer.diskStorage({
+    destination: (req,file,cd) => {
+        cd(null, "images")
+    },
+    filename: (reqm,file,cd) => {
+        cd(null, "req.body.name")
+    }
+})
+
+const upload = multer({storage:storage})
+app.post("/api/upload", upload.single("file"), (req,res)=>{
+    res.status(200).json("image has been uploaded")
+})
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
